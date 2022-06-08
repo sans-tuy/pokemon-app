@@ -21,7 +21,7 @@ const Register = () => {
   const [response, setResponse] = useState(null);
   const [avatar, setavatar] = useState(null);
   const reference = storage();
-  const chooseImage = React.useCallback((type, options) => {
+  const chooseImage = React.useCallback(options => {
     launchImageLibrary(options, setResponse);
   }, []);
   const onRegisterRDB = async values => {

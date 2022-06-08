@@ -23,7 +23,7 @@ const Detail = () => {
       <View>
         <Text>Height: {profile.height}</Text>
         <Text>Weight: {profile.weight}</Text>
-        {/* <Text>Species: {profile.species.name}</Text> */}
+        <Text>Species: {profile.species.name}</Text>
       </View>
       <View>
         <Text style={styles.strongText}>Type</Text>
@@ -38,7 +38,6 @@ const Detail = () => {
         {types.map((item, index) => {
           return <Text key={index}>{item['type']['name']}</Text>;
         })}
-        {console.log('test')}
       </View>
     </View>
   );
