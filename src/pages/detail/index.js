@@ -38,6 +38,7 @@ const Detail = () => {
         {types.map((item, index) => {
           return <Text key={index}>{item['type']['name']}</Text>;
         })}
+        {console.log('test')}
       </View>
     </View>
   );
