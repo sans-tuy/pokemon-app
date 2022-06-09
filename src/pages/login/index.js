@@ -12,11 +12,14 @@ import database from '@react-native-firebase/database';
 import * as navigation from '../../config/router/rootNavigation';
 import * as Yup from 'yup';
 import {Formik} from 'formik';
+import {useDispatch} from 'react-redux';
+import {saveUser} from '../../config/redux/reducer';
 
 // KURANG DISPATCH DATA USER KEDALAM APLIKASI
 // KETIKA BERHASIL LOGIN
 
 const Login = () => {
+  const dispacth = useDispatch();
   const onLoginRDB = values => {
     try {
       database()
@@ -34,7 +37,7 @@ const Login = () => {
             Alert.alert('Error', 'Invalid Password!');
             return false;
           }
-          // dispacth(saveUserData(userData));
+          dispacth(saveUser(userData));
           navigation.navigate('Home');
         });
     } catch (error) {

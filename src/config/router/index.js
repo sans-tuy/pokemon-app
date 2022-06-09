@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import database from '@react-native-firebase/database';
 import Home from '../../pages/home';
 import {navigationRef} from './rootNavigation';
 import PokeBag from '../../pages/pokebag';
@@ -9,6 +10,7 @@ import Register from '../../pages/register';
 import {Button, Image} from 'react-native';
 import Detail from '../../pages/detail';
 import * as navigation from './rootNavigation';
+import {useSelector} from 'react-redux';
 
 const HomeScreen = () => {
   return <Home />;
@@ -29,9 +31,11 @@ const LoginScreen = () => {
 const Stack = createNativeStackNavigator();
 
 const Routing = () => {
+  const image = useSelector(state => state.poke.dataUser);
+
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator initialRouteName="PokeBag">
+      <Stack.Navigator initialRouteName="Login">
         <Stack.Screen
           name="Home"
           component={HomeScreen}
@@ -47,8 +51,13 @@ const Routing = () => {
             ),
             headerLeft: () => (
               <Image
-                source={require('../../assets/icon/pokeball.png')}
-                style={{width: 30, height: 30, marginRight: 20}}
+                source={{uri: image['avatar']}}
+                style={{
+                  width: 30,
+                  height: 30,
+                  marginRight: 20,
+                  borderRadius: 15,
+                }}
               />
             ),
           }}
@@ -59,13 +68,6 @@ const Routing = () => {
           options={{
             title: 'Pokemon Details',
             headerTintColor: 'orange',
-            headerRight: () => (
-              <Button
-                onPress={() => alert('catch pokemon')}
-                title="Catch"
-                color="orange"
-              />
-            ),
           }}
         />
         <Stack.Screen

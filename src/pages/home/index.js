@@ -8,10 +8,21 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Axios from 'axios';
+import {useDispatch} from 'react-redux';
+import * as navigation from '../../config/router/rootNavigation';
+import {saveUrl} from '../../config/redux/reducer';
+import {useMemo} from 'react';
+import {useCallback} from 'react';
 
-const RenderItem = ({title}) => {
+const RenderItem = ({title, item}) => {
+  const dispatch = useDispatch();
   return (
-    <TouchableOpacity style={styles.listPoke}>
+    <TouchableOpacity
+      style={styles.listPoke}
+      onPress={() => {
+        dispatch(saveUrl(item.url));
+        navigation.navigate('Detail');
+      }}>
       <Image
         source={require('../../assets/icon/pokeball.png')}
         style={styles.icon}
@@ -22,24 +33,24 @@ const RenderItem = ({title}) => {
 };
 
 const Home = () => {
-  const [data, setdata] = useState(null);
+  const [data, setdata] = useState([]);
   const [limit, setlimit] = useState(20);
   const [offset, setoffset] = useState(0);
+  const memoizedValue = useMemo(() => offset / limit + 1, [offset, limit]);
 
   const next = () => {
     if (offset <= 228) {
       setoffset(offset + limit);
       console.log('next');
-      // setlimit(limit+=20)
     } else {
       setoffset(offset);
     }
   };
+
   const back = () => {
     if (offset >= 20) {
       setoffset(offset - limit);
       console.log('back');
-      // setlimit(limit-=20)
     }
   };
 
@@ -48,25 +59,28 @@ const Home = () => {
       `https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offset}`,
     )
       .then(val => setdata(val.data.results))
-      .then(() => console.log(data))
       .catch(e => console.log(e));
   }, [offset]);
 
-  const renderItem = ({item}) => <RenderItem title={item.name} />;
+  const renderItem = ({item}) => <RenderItem title={item.name} item={item} />;
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        numColumns={2}
-        // keyExtractor={item => item.name}
-      />
+      {useCallback(
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          numColumns={2}
+          // keyExtractor={item => item.name}
+        />,
+        [data],
+      )}
+
       <View style={styles.pagination}>
         <TouchableOpacity style={styles.button1} onPress={back}>
           <Text>Sebelumnya</Text>
         </TouchableOpacity>
-        <Text>1</Text>
+        <Text>{memoizedValue}</Text>
         <TouchableOpacity style={styles.button2} onPress={next}>
           <Text>Berikutnya</Text>
         </TouchableOpacity>

@@ -9,48 +9,69 @@ import {
   Alert,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import Axios from 'axios';
-
-const longPress = () => {
-  Alert.alert(
-    'Warning',
-    'are you sure want to delete ?',
-    [
-      {text: 'Yes', onPress: () => console.log('data has been deleted')},
-      {text: 'No', onPress: () => console.log('cancel delete')},
-    ],
-    {
-      cancelable: true,
-      onDismiss: () =>
-        console.log(
-          'This alert was dismissed by tapping outside of the alert dialog.',
-        ),
-    },
-  );
-};
-
-const RenderItem = ({title}) => {
-  return (
-    <Pressable onLongPress={longPress} style={styles.listPoke}>
-      <Image
-        source={require('../../assets/icon/pokeball.png')}
-        style={styles.icon}
-      />
-      <Text>{title}</Text>
-    </Pressable>
-  );
-};
+import {useSelector} from 'react-redux';
+import database from '@react-native-firebase/database';
 
 const PokeBag = () => {
   const [data, setdata] = useState(null);
+  const [key, setkey] = useState('');
+  const user = useSelector(state => state.poke.dataUser);
 
   useEffect(() => {
-    Axios.get('https://pokeapi.co/api/v2/pokemon/')
-      .then(val => setdata(val.data.results))
-      .catch(e => console.log(e));
+    database()
+      .ref(`pokebag/${user['name']}`)
+      .once('value')
+      .then(snapshot => {
+        setdata(Object.values(snapshot.val()));
+      });
   }, []);
 
   const renderItem = ({item}) => <RenderItem title={item.name} />;
+
+  const RenderItem = ({title}) => {
+    const shortPress = () => {
+      database()
+        .ref(`pokebag/${user['name']}`)
+        .orderByChild('name')
+        .equalTo(title)
+        .once('value')
+        .then(snapshot => setkey(Object.keys(snapshot.val())));
+    };
+    const longPress = () => {
+      Alert.alert(
+        'Warning',
+        'are you sure want to delete ?',
+        [
+          {
+            text: 'Yes',
+            onPress: () => {
+              database().ref(`pokebag/${user['name']}/${key[0]}`).remove();
+            },
+          },
+          {text: 'No', onPress: () => console.log('cancel delete')},
+        ],
+        {
+          cancelable: true,
+          onDismiss: () =>
+            console.log(
+              'This alert was dismissed by tapping outside of the alert dialog.',
+            ),
+        },
+      );
+    };
+    return (
+      <Pressable
+        onLongPress={longPress}
+        onPress={shortPress}
+        style={styles.listPoke}>
+        <Image
+          source={require('../../assets/icon/pokeball.png')}
+          style={styles.icon}
+        />
+        <Text>{title}</Text>
+      </Pressable>
+    );
+  };
 
   return (
     <View style={styles.container}>
